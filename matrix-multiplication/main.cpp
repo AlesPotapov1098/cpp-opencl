@@ -254,7 +254,21 @@ int main(int argc, char* argv[]) {
 	if (program_for_gpu == 0) {
 		printf("Error (mess) - not created progrma\n");
 		return -1;
+	}	
+
+	// TODO: разобраться с device_id
+	res = clBuildProgram(program_for_gpu,0,nullptr,nullptr,nullptr,nullptr);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n",res);
+
+		const std::size_t size_log = 2048;
+		char * build_log = new char[size_log];
+		res = clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_STATUS,sizeof(build_log)*size_log,build_log,nullptr);
+		printf("%s\n",build_log);
+
+		return res;
 	}
+
 	// Освобождаем память
 	// TODO: добавить  - comand queue, kernel, program, buffers etc. 
 	{

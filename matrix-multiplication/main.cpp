@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	cl_uint device_counter = 0;
 	cl_int res = 0;
 	cl_platform_id* platfrom_ids = NULL;
-	cl_device_id * device_ids = NULL;
+	cl_device_id device_id = 0;
 
 	// Получаем текущие платформы
 
@@ -112,8 +112,30 @@ int main(int argc, char* argv[]) {
 
 	// Получаем графической устройство
 
-	delete [] platfrom_ids;
-	delete [] device_ids;
+	res = clGetDeviceIDs(nullptr,CL_DEVICE_TYPE_GPU,0,nullptr,&device_counter);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n",res);
+		return res;
+	}
 
+	if (device_counter == 0) {
+		printf("Error (mess) - not such GPU device\n");
+		return -1;	
+	}
+
+	res = clGetDeviceIDs(platfrom_ids[1],CL_DEVICE_TYPE_GPU,1,&device_id,nullptr);
+	if(res != CL_SUCCESS){
+		printf("Error (code) - %d\n",res);		
+		return res;
+	}
+	
+	if (device_id == 0) {
+		printf("Error (mess) - device_id is 0\n");
+		return -1;
+	}	
+	
+
+	delete [] platfrom_ids;
+	
 	return 0;
 }

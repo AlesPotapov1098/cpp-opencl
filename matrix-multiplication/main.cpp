@@ -14,6 +14,9 @@ int main(int argc, char* argv[]) {
 	cl_platform_id* platfrom_ids = NULL;
 	cl_device_id device_id = 0;
 	cl_context context_gpu_device = 0;
+	cl_program program_for_gpu = 0;
+	cl_kernel kernel = 0;
+	cl_command_queue command_queue = 0;
 
 	// Получаем текущие платформы
 

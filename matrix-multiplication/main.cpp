@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 			}
 		// Конец
 
-		printf("Platform%d Venfor - %s\n",i,platform_vendor);
+		printf("Platform%d Vendor - %s\n",i,platform_vendor);
 	
 		printf("--------------------------------------------------------------------------\n");
 
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 
 	// Получаем графической устройство
 
-	res = clGetDeviceIDs(nullptr,CL_DEVICE_TYPE_GPU,0,nullptr,&device_counter);
+	res = clGetDeviceIDs(platfrom_ids[1],CL_DEVICE_TYPE_GPU,0,nullptr,&device_counter);
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n",res);
 		return res;
@@ -133,6 +133,88 @@ int main(int argc, char* argv[]) {
 		printf("Error (mess) - device_id is 0\n");
 		return -1;
 	}	
+
+	// Выводи информацию об графическом устройстве
+	{
+		printf("--------------------------------------------------------------------------\n");
+		// Выводи имя графического устройства
+		char * device_gpu_name = nullptr;
+		std::size_t device_gpu_name_size = 0;
+		
+			// Проверка на наличие информации об устройстве	
+			res = clGetDeviceInfo(device_id,CL_DEVICE_NAME,0,nullptr,&device_gpu_name_size);
+			if (res != CL_SUCCESS) {
+				printf("Error (code) - %d\n",res);
+				return res;
+			}
+
+			if (device_gpu_name_size == 0) {
+				printf("Error (mess) - device_gpu_name_size was ignore\n");
+				return -1;
+			}
+			// Конец
+
+		device_gpu_name = new char[device_gpu_name_size];
+	
+			//	Получаем имя устройства
+			res = clGetDeviceInfo(device_id,CL_DEVICE_NAME,device_gpu_name_size,(void*)device_gpu_name,nullptr);
+			if (res != CL_SUCCESS) {
+				printf("Error (code) - %d\n", res);
+				delete [] device_gpu_name;
+				return res;
+			}
+
+			if (!device_gpu_name) {
+				printf("Error (mess) - device_gpu_name was ignore\n");
+				delete [] device_gpu_name;
+				return -1;
+			}
+			// Конец
+
+		printf("Device Name - %s\n",device_gpu_name);
+		delete [] device_gpu_name;
+		// Конец
+		
+		// Получаем производителя графического устройства
+		char * device_gpu_vendor = nullptr;
+		std::size_t device_gpu_vendor_size = 0;
+
+			// Проверка на наличие информации об производителе устройства
+			res = clGetDeviceInfo(device_id,CL_DEVICE_VENDOR,0,nullptr,&device_gpu_vendor_size);
+			if (res != CL_SUCCESS) {
+				printf("Error (code) - %d\n",res);
+				return res;
+			}
+
+			if (device_gpu_vendor_size == 0) {
+				printf("Error (mess) - device_gpu_vendor_size was ignore\n");
+				return -1;
+			}
+			// Конец
+
+		device_gpu_vendor = new char[device_gpu_vendor_size];
+
+			// Получаем производителя устройства
+			res = clGetDeviceInfo(device_id, CL_DEVICE_VENDOR, device_gpu_vendor_size, (void*)device_gpu_vendor, nullptr);
+			if (res != CL_SUCCESS) {
+				printf("Error (code) - %d\n", res);
+				delete [] device_gpu_vendor;
+				return res;
+			}
+
+			if (!device_gpu_vendor) {
+				printf("Error (mess) - device_gpu_vendor was ignore\n");
+				delete [] device_gpu_vendor;
+				return -1;
+			}
+			// Конец
+	
+		printf("Device Vendor - %s\n",device_gpu_vendor);
+		delete [] device_gpu_vendor;
+		// Конец
+
+		printf("--------------------------------------------------------------------------\n");
+	}
 	
 
 	delete [] platfrom_ids;

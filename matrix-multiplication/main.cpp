@@ -1,9 +1,8 @@
-#include <cstdio>
-#include <cstring>
 #include <CL/cl.h>
 #include <iostream>
 #include <fstream>
-
+#include <string>
+#include <iterator>
 
 int main(int argc, char* argv[]) {
 
@@ -17,6 +16,7 @@ int main(int argc, char* argv[]) {
 	cl_program program_for_gpu = 0;
 	cl_kernel kernel = 0;
 	cl_command_queue command_queue = 0;
+	std::string source_code;
 
 	// Получаем текущие платформы
 
@@ -235,7 +235,20 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	delete [] platfrom_ids;
+	std::ifstream kernel_file = std::ifstream("add.cl");
+	if (!kernel_file.is_open()) {
+		printf("Error (mess) - can not open file\n");
+		return -1;
+	}
+	source_code = std::string(std::istreambuf_iterator<char>(kernel_file),(std::istreambuf_iterator<char>()));
+
+
+	// Освобождаем память
+	// TODO: добавить  - comand queue, kernel, program, buffers etc. 
+	{
+		clReleaseContext(context_gpu_device);
+		delete [] platfrom_ids;
+	}
 	
 	return 0;
 }

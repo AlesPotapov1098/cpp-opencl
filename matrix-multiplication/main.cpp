@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
 	cl_int res = 0;
 	cl_platform_id* platfrom_ids = NULL;
 	cl_device_id device_id = 0;
+	cl_context context_gpu_device = 0;
 
 	// Получаем текущие платформы
 
@@ -216,6 +217,20 @@ int main(int argc, char* argv[]) {
 		printf("--------------------------------------------------------------------------\n");
 	}
 	
+	// Создаем контекст устройства
+
+	// TODO: поэкспериментировать с pfn_notify()
+
+	context_gpu_device = clCreateContext(nullptr,device_counter,&device_id,nullptr,nullptr,&res);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n",res);
+		return res;
+	}
+
+	if (context_gpu_device == 0) {
+		printf("Error (mess) - not created context for GPU\n");
+		return -1;
+	}
 
 	delete [] platfrom_ids;
 	

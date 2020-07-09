@@ -16,6 +16,7 @@ int main(int argc, char* argv[]) {
 	cl_program program_for_gpu = 0;
 	cl_kernel kernel = 0;
 	cl_command_queue command_queue = 0;
+	std::ifstream kernel_file;
 	std::string source_code;
 
 	// Получаем текущие платформы
@@ -235,17 +236,29 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	std::ifstream kernel_file = std::ifstream("add.cl");
+	kernel_file = std::ifstream("add.cl");
 	if (!kernel_file.is_open()) {
 		printf("Error (mess) - can not open file\n");
 		return -1;
 	}
 	source_code = std::string(std::istreambuf_iterator<char>(kernel_file),(std::istreambuf_iterator<char>()));
+	const char * src = source_code.c_str();
+	std::size_t size = source_code.length() + 1;
 
+	program_for_gpu = clCreateProgramWithSource(context_gpu_device,1,&src,&size,&res);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n");
+		return res;
+	}
 
+	if (program_for_gpu == 0) {
+		printf("Error (mess) - not created progrma\n");
+		return -1;
+	}
 	// Освобождаем память
 	// TODO: добавить  - comand queue, kernel, program, buffers etc. 
 	{
+		clReleaseProgram(program_for_gpu);
 		clReleaseContext(context_gpu_device);
 		delete [] platfrom_ids;
 	}

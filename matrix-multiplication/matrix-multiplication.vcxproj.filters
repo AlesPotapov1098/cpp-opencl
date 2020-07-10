@@ -23,5 +23,8 @@
     <None Include="add.cl">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="multymatrix.cl">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

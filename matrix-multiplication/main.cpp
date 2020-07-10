@@ -239,7 +239,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	kernel_file = std::ifstream("add.cl");
+	kernel_file = std::ifstream("multymatrix.cl");
 	if (!kernel_file.is_open()) {
 		printf("Error (mess) - can not open file\n");
 		return -1;
@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Создаем kernel
-	kernel = clCreateKernel(program_for_gpu,"add",&res);
+	kernel = clCreateKernel(program_for_gpu,"simple_multy_matrix",&res);
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n");
 		return res;
@@ -301,47 +301,56 @@ int main(int argc, char* argv[]) {
 		return res;
 	}
 
-	int a[3];
-	int b[3];
-	int c[3];
-	for (int i = 0; i < 3; i++) {
-		a[i] = i;
-		b[i] = i*2;
-		c[i] = 0;
-	}
+	cl_int w1 = 4;
+	cl_int h1 = 2;
+	cl_int w2 = 6;
+	cl_int h2 = 4;
 
-	buffer_a = clCreateBuffer(context_gpu_device,CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,sizeof(int)*3,a,&res);
-	buffer_b = clCreateBuffer(context_gpu_device,CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,sizeof(int)*3,b,&res);
-	buffer_c = clCreateBuffer(context_gpu_device,CL_MEM_WRITE_ONLY,sizeof(int)*3,0,&res);
+	cl_int input1[2*4] = {1,1,1,1,
+						  1,1,1,1};
+	cl_int input2[6*4] = {2,2,2,2,
+						  2,2,2,2,
+						  2,2,2,2,
+						  2,2,2,2,
+						  2,2,2,2,
+						  2,2,2,2 };
+	cl_int output[6*2] = { 0 };
+
+	buffer_a = clCreateBuffer(context_gpu_device,CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,sizeof(cl_int)*w1*h1,input1,&res);
+	buffer_b = clCreateBuffer(context_gpu_device,CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,sizeof(cl_int)*w2*h2,input2,&res);
+	buffer_c = clCreateBuffer(context_gpu_device,CL_MEM_WRITE_ONLY,sizeof(int)*w2*h1,0,&res);
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n");
 		return res;
 	}
 	
 	res  = clSetKernelArg(kernel,0,sizeof(cl_mem),(void*)&buffer_c);
-	res |= clSetKernelArg(kernel,1,sizeof(cl_mem),(void*)&buffer_a);
-	res |= clSetKernelArg(kernel,2,sizeof(cl_mem),(void*)&buffer_b);
+	res |= clSetKernelArg(kernel,1,sizeof(cl_int),(void*)&w1);
+	res |= clSetKernelArg(kernel,2,sizeof(cl_int),(void*)&h1);
+	res |= clSetKernelArg(kernel,3,sizeof(cl_int),(void*)&w2);
+	res |= clSetKernelArg(kernel,4,sizeof(cl_int),(void*)&h2);
+	res |= clSetKernelArg(kernel,5,sizeof(cl_mem),(void*)&buffer_a);
+	res |= clSetKernelArg(kernel,6,sizeof(cl_mem),(void*)&buffer_b);
 	
-	const std::size_t global_size = 36;
-	const std::size_t local_size = 12;
-	res = clEnqueueNDRangeKernel(command_queue,kernel,1,0,&global_size,&local_size,0,nullptr,nullptr);
+	const std::size_t global_size[2] = {6,4};
+	const std::size_t local_size[2] = {2,2};
+	res = clEnqueueNDRangeKernel(command_queue,kernel,2,0,global_size,local_size,0,nullptr,nullptr);
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n",res);
 		return res;
 	}
 
-	res = clEnqueueReadBuffer(command_queue,buffer_c,CL_TRUE,0,sizeof(int)*3,c,0,nullptr,nullptr);
+	res = clEnqueueReadBuffer(command_queue,buffer_c,CL_TRUE,0,sizeof(cl_int)*w2*h1,output,0,nullptr,nullptr);
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n",res);
 		return res;
 	}
 
-	for (int i = 0; i < 3; i++) {
-		printf("c[%d] = %d\n",i,c[i]);
+	for (int i = 0; i < w2*h1; i++) {
+		printf("c[%d] = %d\n",i,output[i]);
 	}
 
 	// Освобождаем память
-	// TODO: добавить  - buffers etc. 
 	{
 		clReleaseMemObject(buffer_c);
 		clReleaseMemObject(buffer_b);

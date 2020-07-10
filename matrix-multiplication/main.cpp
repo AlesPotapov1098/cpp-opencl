@@ -261,11 +261,34 @@ int main(int argc, char* argv[]) {
 	if (res != CL_SUCCESS) {
 		printf("Error (code) - %d\n",res);
 
-		const std::size_t size_log = 2048;
-		char * build_log = new char[size_log];
-		clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_LOG,sizeof(build_log)*size_log,build_log,nullptr);
-		printf("%s\n",build_log);
+		std::size_t size_log = 0;
+		char * build_log;
+		res = clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_LOG,0,nullptr,&size_log);
+		if (res != CL_SUCCESS) {
+			printf("Error (code) - %d\n",res);
+			return res;
+		}
 
+		if (size_log == 0) {
+			printf("Error (mess) - not such size_log\n");
+			return -1;
+		}
+
+		build_log = new char[size_log];
+		res = clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_LOG,size_log,build_log,nullptr);
+		if (res != CL_SUCCESS) {
+			printf("Error (code) - %d\n",res);
+			return res;
+		}
+		printf("%s\n",build_log);
+		delete [] build_log;
+		return res;
+	}
+
+	// Создаем kernel
+	kernel = clCreateKernel(program_for_gpu,"add",&res);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n");
 		return res;
 	}
 

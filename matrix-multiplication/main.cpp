@@ -263,7 +263,7 @@ int main(int argc, char* argv[]) {
 
 		const std::size_t size_log = 2048;
 		char * build_log = new char[size_log];
-		res = clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_STATUS,sizeof(build_log)*size_log,build_log,nullptr);
+		clGetProgramBuildInfo(program_for_gpu,device_id,CL_PROGRAM_BUILD_LOG,sizeof(build_log)*size_log,build_log,nullptr);
 		printf("%s\n",build_log);
 
 		return res;

@@ -292,9 +292,17 @@ int main(int argc, char* argv[]) {
 		return res;
 	}
 
+	command_queue = clCreateCommandQueue(context_gpu_device,device_id,CL_QUEUE_PROFILING_ENABLE,&res);
+	if (res != CL_SUCCESS) {
+		printf("Error (code) - %d\n");
+		return res;
+	}
+
 	// Освобождаем память
 	// TODO: добавить  - comand queue, kernel, program, buffers etc. 
 	{
+		clReleaseCommandQueue(command_queue);
+		clReleaseKernel(kernel);
 		clReleaseProgram(program_for_gpu);
 		clReleaseContext(context_gpu_device);
 		delete [] platfrom_ids;
